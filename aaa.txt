@@ -1,0 +1,208 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Fabbrica
+{
+    public partial class FabbricaForm1 : Form
+    {
+        private int durata1;
+        private int delta;
+        private int posX;
+        private int posY;
+        private int posX2;
+        private int posY2;
+        private int posX3;
+        private int posY3;
+        private int posX4;
+        private int posY4;
+        private int targetX;
+        private int targetY;
+        private int targetX2;
+        private int targetY2;
+        private int targetX_Asc;
+        private int targetY_Asc;
+        private int spost;
+        private int delta2;
+        private int durata2;
+
+        public FabbricaForm1()
+        {
+            InitializeComponent();
+        }
+
+        private void FabbricaForm_Load(object sender, EventArgs e)
+        {
+            durata1 = 1000;                      //durata prima del bivio
+            delta = MasterTime1.Interval;        //valore intervallo
+            posX = Carta1.Location.X;            //posizione x
+            posY = Carta1.Location.Y;            //posizione y
+            posX2 = Carta2.Location.X;           //posizione x
+            posY2 = Carta2.Location.Y;           //posizione y
+            posX3 = Carta3.Location.X;           //posizione x
+            posY3 = Carta3.Location.Y;           //posizione y
+            posX4 = Carta4.Location.X;           //posizione x
+            posY4 = Carta4.Location.Y;           //posizione y
+            targetX = StampSx.Location.X;        //obiettivo x
+            targetY = StampSx.Location.Y;        //obiettivo y
+            targetX2 = StampDx.Location.X;       //obiettivo x
+            targetY2 = StampDx.Location.Y;       //obiettivo y
+            targetX_Asc = Asciugatura.Location.X;
+            targetY_Asc = Asciugatura.Location.Y;
+            Carta2.Visible = false;
+            Carta3.Visible = false;
+            Carta4.Visible = false;
+            spost = 259 - 204;
+            delta2 = MasterTime2.Interval;
+            durata2 = 500;
+
+        }
+
+        private void ButtStart_Click(object sender, EventArgs e)
+        {
+            TimerDelay.Enabled = true;
+            TbComandoStart.Text = "True";
+            if (TbComandoReset.Equals("True"))
+            {
+                TimerDelay.Enabled = true;
+                TbComandoStart.Text = "True";
+            }
+        }
+
+        private void TimerDelay_Tick(object sender, EventArgs e)
+        {
+            if (TbComandoStart.Text.Equals("True"))
+            {
+                TbComandoStart.Text = "False";
+                MasterTime1.Enabled = true;
+            }
+
+            if (TbComandoReset.Text.Equals("True"))
+            {
+                TbComandoReset.Text = "";
+                TbComandoStart.Text = "";
+                MasterTime1.Enabled = true;
+            }
+        }
+
+        private void MasterTimer1_Tick(object sender, EventArgs e)
+        {
+            if (TimerDelay.Equals(durata1))
+            {
+                MasterTime1.Start();
+            }
+
+            //carta va a sinistra
+            if (TbCartaSx.Text.Equals("True"))
+            {
+                if (TbSensCDx.Text.Equals("True"))
+                {
+                    posX2 = targetX2 - 30;
+                    posY2 = targetY2;
+                    TbCartaDx.Text = "";
+                }
+                else
+                {
+                    Carta2.Visible = false;
+                }
+
+                Carta1.Visible = true;
+
+                posX = posX + (int)((targetX - posX) * delta / durata1);
+                Carta1.Left = posX;
+                posY = posY + (int)((targetY - posY) * delta / durata1);
+                Carta1.Top = posY;
+            }
+
+            if (posX >= (targetX - 30) && posY >= (targetY - 30))
+            {
+                posX = targetX - 20;
+                posY = targetY + 2;
+                if (TbComandoStart.Text.Equals("False"))
+                {
+                    TbSensCSx.Text = "True";
+                    cartaSx.BackColor = System.Drawing.Color.Lime;
+                }
+            }
+
+            //carta va a destra
+            if (TbCartaDx.Text.Equals("True"))
+            {
+                if (TbSensCSx.Text.Equals("True"))
+                {
+                    posX = targetX - 30;
+                    posY = targetY + 10;
+                    TbCartaSx.Text = "";
+                }
+                else
+                {
+                    Carta1.Visible = false;
+                }
+
+                Carta2.Visible = true;
+
+                posY2 = posY2 + (int)((targetY2 - posY2 + 10) * delta / durata1);
+                Carta2.Top = posY2;
+                posX2 = posX2 + (int)((targetX2 - posX2 - 20) * delta / durata1);
+                Carta2.Left = posX2;
+            }
+
+            if (posX2 >= (targetX2 - 30) && posY2 >= (targetY2 - 30))
+            {
+                posX2 = targetX2 - 10;
+                posX2 = targetX2 - 5;
+                posY2 = targetY2;
+                if (TbComandoStart.Text.Equals("False"))
+                {
+                    TbSensCDx.Text = "True";
+                    cartaDx.BackColor = System.Drawing.Color.Lime;
+                }
+            }
+
+            //stampaggio
+            if (TbSensCDx.Text.Equals("True") && TbSensCSx.Text.Equals("True"))
+            {
+                TimerStampa.Enabled = true;
+                Carta1.Visible = false;
+                Carta2.Visible = false;
+            }
+        }
+
+        private void TimerStampa_Tick(object sender, EventArgs e)
+        {
+            Carta3.Visible = true;
+            Carta4.Visible = true;
+            posX3 = posX3 + (int)(spost * delta2 / durata2);
+            Carta3.Left = posX3;
+            if (posX3 >= 245)
+            {
+                posX3 = 245;
+            }
+            posX4 = posX4 + (int)(spost * delta2 / durata2);
+            Carta4.Left = posX4;
+            if (posX4 >= 245)
+            {
+                posX4 = 245;
+            }
+            MasterTime2.Enabled = true;
+        }
+
+        private void MasterTime2_Tick(object sender, EventArgs e)
+        {
+            if (posX3 == 245 && posY3 == 240 && posX4 == 245 && posY4 == 328)
+            {
+                posX3 = posX3 + (((targetX_Asc - 54) - posX3) * delta2 / durata2);
+                Carta3.Left = posX3;
+                posY3 = posY3 + (((targetY_Asc + 2) - posY3) * delta2 / durata2);
+                Carta3.Top = posY3;
+
+            }
+        }
+    }
+}
